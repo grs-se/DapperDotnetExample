@@ -35,5 +35,19 @@ namespace WellbeingWorkbook.Controllers
             await _userService.Create(model);
             return Ok(new { message = "User created" });
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(int id, UpdateRequest model)
+        {
+            await _userService.Update(id, model);
+            return Ok(new { message = "User updated" });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            await _userService.Delete(id);
+            return Ok(new { message = "User deleted" });
+        }
     }
 }

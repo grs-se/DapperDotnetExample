@@ -11,8 +11,8 @@ namespace WellbeingWorkbook.Services
         Task<IEnumerable<User>> GetAll();
         Task<User> GetById(int id);
         Task Create(CreateRequest model);
-        //Task Update(int id, UpdateRequest model);
-        //Task Delete(int id);
+        Task Update(int id, UpdateRequest model);
+        Task Delete(int id);
     }
 
     public class UserService : IUserService
@@ -56,6 +56,34 @@ namespace WellbeingWorkbook.Services
 
             // save user
             await _userRepository.Create(user);
+        }
+
+        public async Task Update(int id, UpdateRequest model)
+        {
+            var user = await _userRepository.GetById(id);
+
+            if (user == null)
+                throw new KeyNotFoundException("User not found");
+
+            // validate
+            var emailChanged = !string.IsNullOrEmpty(model.Email) && user.Email != model.Email;
+            if (emailChanged && await _userRepository.GetByEmail(model.Email!) != null)
+                throw new AppException("User with the email '" + model.Email + "' already exists");
+
+            // hash password if it was entered
+            if (!string.IsNullOrEmpty(model.Password))
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+            // cop model props to user
+            _mapper.Map(model, user);
+
+            // save user
+            await _userRepository.Update(user);
+        }
+
+        public async Task Delete(int id)
+        {
+            await _userRepository.Delete(id);
         }
     }
 }

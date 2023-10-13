@@ -11,8 +11,8 @@ namespace WellbeingWorkbook.Repositories
         Task<User> GetById(int id);
         Task<User> GetByEmail(string email);
         Task Create(User user);
-        //Task Update(User user);
-        //Task Delete(int id);
+        Task Update(User user);
+        Task Delete(int id);
     }
 
     public class UserRepository : IUserRepository
@@ -61,6 +61,32 @@ namespace WellbeingWorkbook.Repositories
                 VALUES (@Title, @FirstName, @LastName, @Email, @Role, @PasswordHash)
                 """;
             await connection.ExecuteAsync(sql, user);
+        }
+
+        public async Task Update(User user)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = """
+                UPDATE Users
+                SET Title = @Title,
+                    FirstName = @FirstName,
+                    LastName = @LastName,
+                    Email = @Email,
+                    Role = @Role,
+                    PasswordHash = @PasswordHash
+                WHERE Id = @Id
+                """;
+            await connection.ExecuteAsync(sql, user);
+        }
+
+        public async Task Delete(int id)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = """
+                DELETE FROM Users
+                WHERE Id = @id
+                """;
+            await connection.ExecuteAsync(sql, new { id });
         }
     }
 }
