@@ -58,7 +58,7 @@ namespace WellbeingWorkbook.Repositories
             using var connection = _context.CreateConnection();
             var sql = """
                 INSERT INTO Users (Title, FirstName, LastName, Email, Role, PasswordHash)
-                VALUES (@Title @FirstName, @LastName, @Email, @Role, @PasswordHash)
+                VALUES (@Title, @FirstName, @LastName, @Email, @Role, @PasswordHash)
                 """;
             await connection.ExecuteAsync(sql, user);
         }
