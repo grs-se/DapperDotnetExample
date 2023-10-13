@@ -19,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
         // ignore omitted parameters on models to enable optional params (e.g. User update)
         x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
     });
-    //services.AddAutoMapper
+    services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
     // configure strongly types settings object
     services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));

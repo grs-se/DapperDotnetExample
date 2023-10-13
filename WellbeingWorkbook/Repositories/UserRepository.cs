@@ -9,8 +9,9 @@ namespace WellbeingWorkbook.Repositories
     {
         Task<IEnumerable<User>> GetAll();
         Task<User> GetById(int id);
-        //Task Create(CreateRequest model);
-        //Task Update(int id, UpdateRequest model);
+        Task<User> GetByEmail(string email);
+        Task Create(User user);
+        //Task Update(User user);
         //Task Delete(int id);
     }
 
@@ -40,6 +41,26 @@ namespace WellbeingWorkbook.Repositories
                 WHERE Id = @id
                 """;
             return await connection.QuerySingleOrDefaultAsync<User>(sql, new { id });
+        }
+
+        public async Task<User> GetByEmail(string email)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = """
+                SELECT * FROM Users
+                WHERE Email = @email
+                """;
+            return await connection.QuerySingleOrDefaultAsync<User>(sql, new { email });
+        }
+
+        public async Task Create(User user)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = """
+                INSERT INTO Users (Title, FirstName, LastName, Email, Role, PasswordHash)
+                VALUES (@Title @FirstName, @LastName, @Email, @Role, @PasswordHash)
+                """;
+            await connection.ExecuteAsync(sql, user);
         }
     }
 }

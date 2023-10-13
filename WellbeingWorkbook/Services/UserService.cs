@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 using WellbeingWorkbook.Entities;
+using WellbeingWorkbook.Helpers;
+using WellbeingWorkbook.Models.Users;
 using WellbeingWorkbook.Repositories;
 
 namespace WellbeingWorkbook.Services
@@ -8,7 +10,7 @@ namespace WellbeingWorkbook.Services
     {
         Task<IEnumerable<User>> GetAll();
         Task<User> GetById(int id);
-        //Task Create(CreateRequest model);
+        Task Create(CreateRequest model);
         //Task Update(int id, UpdateRequest model);
         //Task Delete(int id);
     }
@@ -40,7 +42,20 @@ namespace WellbeingWorkbook.Services
             return user;
         }
 
-        public async Task
+        public async Task Create(CreateRequest model)
+        {
+            // validate
+            if (await _userRepository.GetByEmail(model.Email) != null)
+                throw new AppException("User with the email '" + model.Email + "' already exists");
 
+            // map model to new user object
+            var user = _mapper.Map<User>(model);
+
+            // hash password
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(model.Password);
+
+            // save user
+            await _userRepository.Create(user);
+        }
     }
 }

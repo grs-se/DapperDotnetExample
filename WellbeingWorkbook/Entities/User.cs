@@ -14,5 +14,4 @@ namespace WellbeingWorkbook.Entities
         [JsonIgnore]
         public string? PasswordHash { get; set; }
     }
-    }
 }

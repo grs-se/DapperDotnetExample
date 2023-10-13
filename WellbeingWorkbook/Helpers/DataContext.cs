@@ -16,7 +16,7 @@ namespace WellbeingWorkbook.Helpers
 
         public IDbConnection CreateConnection()
         {
-            var connectionString = $"Server={_dbSettings.Server}; Database={_dbSettings.Database}; User Id={_dbSettings.UserId}; Password={_dbSettings.Password};";
+            var connectionString = $"Server={_dbSettings.Server}; Database={_dbSettings.Database}; User Id={_dbSettings.UserId}; Password={_dbSettings.Password}; TrustServerCertificate=true;";
             return new SqlConnection(connectionString);
         }
 
@@ -29,7 +29,7 @@ namespace WellbeingWorkbook.Helpers
         private async Task _initDatabase()
         {
             // create database if it doesn't exist
-            var connectionString = $"Server={_dbSettings.Server}; Database=master; User Id={_dbSettings.UserId}; Password={_dbSettings.Password};";
+            var connectionString = $"Server={_dbSettings.Server}; Database=master; User Id={_dbSettings.UserId}; Password={_dbSettings.Password}; TrustServerCertificate=true;";
             using var connection = new SqlConnection(connectionString);
             var sql = $"IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = '{_dbSettings.Database}') CREATE DATABASE [{_dbSettings.Database}];";
             await connection.ExecuteAsync(sql);

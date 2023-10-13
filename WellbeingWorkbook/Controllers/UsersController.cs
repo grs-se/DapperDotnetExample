@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using WellbeingWorkbook.Models.Users;
 using WellbeingWorkbook.Services;
 
 namespace WellbeingWorkbook.Controllers
@@ -26,6 +27,13 @@ namespace WellbeingWorkbook.Controllers
         {
             var user = await _userService.GetById(id);
             return Ok(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Create(CreateRequest model)
+        {
+            await _userService.Create(model);
+            return Ok(new { message = "User created" });
         }
     }
 }
