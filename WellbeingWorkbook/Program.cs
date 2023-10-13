@@ -1,27 +1,56 @@
+using System.Text.Json.Serialization;
+using WellbeingWorkbook.Helpers;
+using WellbeingWorkbook.Repositories;
+using WellbeingWorkbook.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// Add services to the DI container.
+{
+    var services = builder.Services;
+    var env = builder.Environment;
 
-builder.Services.AddControllersWithViews();
+    services.AddCors();
+    services.AddControllers().AddJsonOptions(x =>
+    {
+        // serialize enums as string in api responses (e.g. Role)
+        x.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+
+        // ignore omitted parameters on models to enable optional params (e.g. User update)
+        x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+    //services.AddAutoMapper
+
+    // configure strongly types settings object
+    services.Configure<DbSettings>(builder.Configuration.GetSection("DbSettings"));
+
+    // configure DI for application services
+    services.AddSingleton<DataContext>();
+    services.AddScoped<IUserRepository, UserRepository>();
+    services.AddScoped<IUserService, UserService>();
+}
+
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// ensure database and tables exist
 {
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-    app.UseHsts();
+    using var scope = app.Services.CreateScope();
+    var context = scope.ServiceProvider.GetRequiredService<DataContext>();
+    await context.Init();
 }
 
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-app.UseRouting();
+// configure HTTP request pipeline
+{
+    app.UseCors(x => x
+        .AllowAnyOrigin()
+        .AllowAnyMethod()
+        .AllowAnyHeader());
 
+    // global error handler
+    app.UseMiddleware<ErrorHandlerMiddleware>();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller}/{action=Index}/{id?}");
+    app.MapControllers();
+}
 
-app.MapFallbackToFile("index.html");
-
-app.Run();
+app.Run("http://localhost:4000");

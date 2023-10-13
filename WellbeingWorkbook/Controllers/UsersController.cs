@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using WellbeingWorkbook.Services;
 
 namespace WellbeingWorkbook.Controllers
 {
@@ -7,6 +7,25 @@ namespace WellbeingWorkbook.Controllers
     [ApiController]
     public class UsersController : ControllerBase
     {
-        public UsersController(IUserService userService) { }
+        private readonly IUserService _userService;
+
+        public UsersController(IUserService userService)
+        {
+            _userService = userService;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var users = await _userService.GetAll();
+            return Ok(users);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id)
+        {
+            var user = await _userService.GetById(id);
+            return Ok(user);
+        }
     }
 }
